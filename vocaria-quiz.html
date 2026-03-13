@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보카리아 프리미엄 퀴즈 - Condition & Situation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --print-margin-h: 15mm;
+            --print-margin-v: 15mm;
+            --page-bg: #f8fafc;
+            --primary: #1e293b;
+            --accent: #4f46e5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background: var(--page-bg);
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .en-font { font-family: 'Inter', sans-serif; }
+        .ko-font { font-family: 'Noto Sans KR', sans-serif; }
+
+        /* ===== A4 Page Layout ===== */
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            margin: 40px auto;
+            padding: var(--print-margin-v) var(--print-margin-h);
+            background: #ffffff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== Header Design ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header-title h1 {
+            font-size: 22pt;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+        .header-title p {
+            font-size: 10pt;
+            color: var(--accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .student-info {
+            display: flex;
+            gap: 20px;
+            font-size: 11pt;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .info-field {
+            border-bottom: 1.5px solid #cbd5e1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* ===== Section Title ===== */
+        .section-bar {
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 6px solid var(--accent);
+        }
+        .section-bar span {
+            font-size: 13pt;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* ===== Quiz Item Container ===== */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .quiz-item {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            background: #ffffff;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        /* Item Header */
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .checkbox-box {
+            width: 22px;
+            height: 22px;
+            border: 2.5px solid #94a3b8;
+            border-radius: 6px;
+            background: #f8fafc;
+        }
+        .q-num {
+            font-size: 12pt;
+            font-weight: 900;
+            color: var(--accent);
+        }
+        .q-word {
+            font-size: 15pt;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        /* Sentence Box */
+        .sentence-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 12px 18px;
+            border-radius: 4px 8px 8px 4px;
+            margin-bottom: 15px;
+        }
+        .sentence-text {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #1e40af;
+            letter-spacing: -0.2px;
+        }
+
+        /* Multi-Choice Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 8px;
+        }
+        
+        /* 1-Page optimization: Show options in 2 columns if space allows, 
+           but for 14 items across 2 pages, we'll use a compact layout */
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .option-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 9.5pt;
+            line-height: 1.3;
+        }
+        .opt-symbol {
+            font-weight: 800;
+            color: #64748b;
+            flex-shrink: 0;
+        }
+        .opt-txt {
+            color: #334155;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .page-footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 9pt;
+            color: #94a3b8;
+            padding-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        /* Controls */
+        .no-print-zone {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        /* ===== PRINT CONFIG ===== */
+        @media print {
+            body { background: white; }
+            .a4-page {
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+            .no-print-zone { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-zone">
+        <div class="floating-btn" onclick="window.print()" title="인쇄하기">
+            <i class="fas fa-print fa-lg"></i>
+        </div>
+        <div class="floating-btn" style="background: #ef4444;" onclick="alert('정답표는 하단에 포함되어 있습니다.')" title="정답확인">
+            <i class="fas fa-key fa-lg"></i>
+        </div>
+    </div>
+
+    <!-- PAGE 1: Q1~Q7 -->
+    <div class="a4-page">
+        <div class="page-header ko-font">
+            <div class="header-title">
+                <p class="en-font">VOCARIA PREMIUM SERIES</p>
+                <h1>Section 7. Condition & Situation <span class="text-gray-300 ml-2">I</span></h1>
+            </div>
+            <div class="student-info">
+                <span>날짜: <span class="info-field">2026. 03. 13</span></span>
+                <span>이름: <span class="info-field"></span></span>
+            </div>
+        </div>
+
+        <div class="section-bar ko-font">
+            <i class="fas fa-spell-check text-indigo-500"></i>
+            <span>보카리아 분석 퀴즈: 문맥에 맞는 가장 정확한 해석을 고르세요.</span>
+        </div>
+
+        <div class="quiz-container ko-font">
+            <!-- Q1 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q01.</span>
+                    <span class="q-word en-font">absent</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">Michael was absent from school yesterday.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">Michael은 어제 학교를 일찍 떠났어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">Michael은 어제 학교를 결석했었어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">Michael은 어제 학교에 결석했어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">Michael은 오늘 학교를 결석했어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">Michael은 어제 학교에 빠져있었죠.</span></div>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q02.</span>
+                    <span class="q-word en-font">present</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">We are present for the meeting every Monday.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">우리는 매주 월요일 회의에 참석 중입니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">우리는 매주 월요일 회의에 참석합니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">우리는 지난 월요일 회의에 참석했었습니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">우리는 매번 월요일 회의에 참석하곤 했죠.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">우리는 매주 월요일마다 회의를 참관합니다.</span></div>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q03.</span>
+                    <span class="q-word en-font">accept</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">Please accept my apology.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">내 사과를 받아 주셨으면 해요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">내 사과를 받아 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">내 사과를 받기로 결정해 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">내 사정부터 받아 들여 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">내 사과에 대해 받아 주길 바랍니다.</span></div>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q04.</span>
+                    <span class="q-word en-font">refuse</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">Please don't refuse my request.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">나의 제안을 무시하진 말아 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">나의 요청을 거부하지 말아 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">나의 부탁을 취소하진 말아 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">나의 제안을 거절하지 말아 주세요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">나의 제의를 거부했으면 안 됐어요.</span></div>
+                </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q05.</span>
+                    <span class="q-word en-font">agree</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">I agree with you on this issue.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">이 건에 대해 너에게 동의했었어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">이 문제에 대해서는 당신에게 동의합니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">이 문제에 대해 너와 의견이 동의됐어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">이 쟁점에 대해 너와 동의하는 중이야.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">이 안건에 대해 네가 동의할 것 같아.</span></div>
+                </div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q06.</span>
+                    <span class="q-word en-font">disagree</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">They disagree with what you say.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">그들은 네가 한 말들에 반대했어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">그들은 당신이 말한 것들을 반대합니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">그들은 당신이 말한 것을 반대합니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">그들은 네가 말하려는 것에 반대해.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">그들은 네가 한 말에 대해 거부했어.</span></div>
+                </div>
+            </div>
+
+            <!-- Q7 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q07.</span>
+                    <span class="q-word en-font">bad</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">It's bad news for me.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">이건 내게 나쁜 소식이었어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">그것은 너에게 나쁜 소식이야.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">그것은 내게 나쁜 소식입니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">그것은 내게 나쁜 뉴스야.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">저것은 나에게 나쁜 정보야.</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer en-font">
+            Page 01 — VOCARIA Study System
+        </div>
+    </div>
+
+    <!-- PAGE 2: Q8~Q14 -->
+    <div class="a4-page">
+        <div class="page-header ko-font">
+            <div class="header-title">
+                <p class="en-font">VOCARIA PREMIUM SERIES</p>
+                <h1>Section 7. Condition & Situation <span class="text-gray-300 ml-2">II</span></h1>
+            </div>
+            <div class="student-info">
+                <span>날짜: <span class="info-field">2026. 03. 13</span></span>
+                <span>이름: <span class="info-field"></span></span>
+            </div>
+        </div>
+
+        <div class="section-bar ko-font">
+            <i class="fas fa-spell-check text-indigo-500"></i>
+            <span>보카리아 분석 퀴즈: 문맥에 맞는 가장 정확한 해석을 고르세요.</span>
+        </div>
+
+        <div class="quiz-container ko-font">
+            <!-- Q8 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q08.</span>
+                    <span class="q-word en-font">good</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">She is a good teacher.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">그녀는 좋은 선생님이었어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">그녀는 좋은 교사입니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">그녀는 훌륭한 선생님이에요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">그녀는 좋은 선생님이예요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">그분은 최고의 선생님이야.</span></div>
+                </div>
+            </div>
+
+            <!-- Q9 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q09.</span>
+                    <span class="q-word en-font">before</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">You should wash your hands before meals.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">넌 식사 전에 손을 씻었어야 해.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">식사 전에 손을 씻어야 합니다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">너는 식전에 꼭 손을 씻어야해.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">넌 밥 먹기 전에 손을 씻게 될 거야.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">넌 식사 전마다 손을 씻어야 하거든.</span></div>
+                </div>
+            </div>
+
+            <!-- Q10 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q10.</span>
+                    <span class="q-word en-font">after</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">Let's go for a walk after dinner.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">저녁 먹은 담에 같이 산책하자.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">저녁 식사 후에 산책하러 가자.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">저녁 식사 후에 산책 가자.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">우리 저녁 식사 후에 산책 가기로 해.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">밥 다 먹고 나서 산책 좀 할래?</span></div>
+                </div>
+            </div>
+
+            <!-- Q11 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q11.</span>
+                    <span class="q-word en-font">begin</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">What time does the festival begin?</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">그 축제는 몇 시부터 하나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">축제는 몇시에 시작하나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">축제 시작 시간이 언제쯤인가요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">몇 시에 축제가 시작되었었나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">그 축제는 어느 시간에 시작하나요?</span></div>
+                </div>
+            </div>
+
+            <!-- Q12 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q12.</span>
+                    <span class="q-word en-font">end</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">What time does the festival end?</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">축제는 몇 시에 종료되나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">축제가 끝나는 시간은 몇 신가요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">축제는 몇 시쯤 다 끝나나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">축제는 몇시에 끝나나요?</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">축제가 언제 다 끝날 예정인가요?</span></div>
+                </div>
+            </div>
+
+            <!-- Q13 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q13.</span>
+                    <span class="q-word en-font">below</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">The sun sank slowly below the horizon.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">태양이 수평선 밑으로 천천히 저물었어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">태양이 지평선 아래로 가라앉았어요.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">해는 수평선 아래로 서서히 내려갔다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">태양이 수평선 아래로 서서히 가라앉았다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">햇님이 수평선 아래로 가라앉곤 했어.</span></div>
+                </div>
+            </div>
+
+            <!-- Q14 -->
+            <div class="quiz-item">
+                <div class="item-row">
+                    <div class="checkbox-box"></div>
+                    <span class="q-num en-font">Q14.</span>
+                    <span class="q-word en-font">above</span>
+                </div>
+                <div class="sentence-box">
+                    <p class="sentence-text en-font">The sun rose slowly above the mountain.</p>
+                </div>
+                <div class="quiz-options">
+                    <div class="option-card"><span class="opt-symbol">①</span><span class="opt-txt">해가 산 너머로 천천히 떠올랐다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">②</span><span class="opt-txt">산 위로 태양이 서서히 올라왔어.</span></div>
+                    <div class="option-card"><span class="opt-symbol">③</span><span class="opt-txt">태양이 산 위로 천천히 떠올랐다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">④</span><span class="opt-txt">산머리 위로 태양이 천천히 떴다.</span></div>
+                    <div class="option-card"><span class="opt-symbol">⑤</span><span class="opt-txt">태양이 산 위로 느릿느릿 올라갔지.</span></div>
+                </div>
+            </div>
+
+            <!-- Answer Key Summary -->
+            <div class="quiz-item mt-4" style="background: #fdf2f2; border-color: #fecaca;">
+                <p class="text-xs font-black text-red-600 mb-2">MASTER ANSWER KEY</p>
+                <div class="grid grid-cols-7 gap-2">
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q1: ③</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q2: ②</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q3: ②</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q4: ④</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q5: ②</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q6: ③</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q7: ④</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q8: ④</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q9: ②</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q10: ③</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q11: ②</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q12: ④</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q13: ④</div>
+                    <div class="text-center font-bold text-[8pt] border border-red-200 bg-white p-1 rounded">Q14: ③</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer en-font">
+            Page 02 — VOCARIA Study System
+        </div>
+    </div>
+
+</body>
+</html>
