@@ -376,6 +376,11 @@
                     <i class="fas fa-copy"></i> 전체 합본 인쇄 (1~3차시)
                 </button>
 
+                <button onclick="printChapterTest(false)"
+                    class="w-full neumo-btn font-bold py-2.5 px-4 flex items-center justify-center gap-2 text-[13px] text-purple-600 cursor-pointer">
+                    <i class="fas fa-file-signature"></i> 전체 시험 인쇄 (1~3차시)
+                </button>
+
                 <button onclick="printChapterAll(true)"
                     class="w-full neumo-btn font-bold py-2.5 px-4 flex items-center justify-center gap-2 text-[13px] text-red-600 cursor-pointer">
                     <i class="fas fa-check-double"></i> 전체 답지 인쇄
@@ -2116,6 +2121,33 @@
         }
 
 
+
+        function printChapterTest(forceAnswer) {
+            const activeBtn = document.querySelector('.chapter-btn.active');
+            if (!activeBtn) { alert("먼저 챕터를 선택해주세요."); return; }
+            const chId = parseInt(activeBtn.id.replace('btn-', ''));
+            let allHtml = "";
+            
+            const printAnswer = (forceAnswer === true) ? true : isAnswerMode;
+            
+            // 모든 차시(1~3차시)의 시험지를 순차적으로 빌드
+            for (let s = 1; s <= 3; s++) {
+                allHtml += generatePageHtml(chId, s, 'test', printAnswer);
+            }
+            
+            const container = document.getElementById('page-container');
+            const originalContent = container.innerHTML;
+            const hadA4Class = container.classList.contains('a4-page');
+            
+            container.classList.remove('a4-page');
+            container.innerHTML = allHtml.trim();
+            
+            setTimeout(() => {
+                window.print();
+                container.innerHTML = originalContent;
+                if (hadA4Class) container.classList.add('a4-page');
+            }, 1000);
+        }
 
         function printChapterAll(forceAnswer) {
             const activeBtn = document.querySelector('.chapter-btn.active');
