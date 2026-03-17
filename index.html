@@ -444,6 +444,10 @@
                 class="flex-1 py-3 px-2 font-bold text-sm neumo-btn text-gray-600 cursor-pointer">
                 <i class="fas fa-pen-to-square mr-1"></i>숙제
             </button>
+            <button id="tab-test" onclick="changeView('test')"
+                class="flex-1 py-3 px-2 font-bold text-sm neumo-btn text-gray-600 cursor-pointer">
+                <i class="fas fa-file-signature mr-1"></i>시험
+            </button>
             <!-- 답지 인쇄 토글 버튼 -->
             <button id="tab-answer" onclick="toggleAnswer()"
                 class="w-24 py-3 px-2 font-bold text-sm neumo-btn neumo-btn-answer text-red-500 hidden cursor-pointer">
@@ -1487,9 +1491,11 @@
 
         const hwPartNames = ['Part 1. 단어 암기/영작', 'Part 2. 문장 해석/영작', 'Part 3. 단어/문장 배열', 'Part 4. 문장 변형', 'Part 5. 영영풀이', 'Part 6. 오류 수정', 'Part 7. 받아쓰기'];
         const tbPartNames = ['Step 1. 직독직해', 'Step 2. 영작 훈련', 'Step 3. 실전 대화'];
+        const testPartNames = ['Part 1. 단어 시험 (한-영)', 'Part 2. 문장 시험 (한-영)'];
         let selectedParts = {
             hw: [1, 2, 3, 4, 5, 6, 7],
-            textbook: [1, 2, 3]
+            textbook: [1, 2, 3],
+            test: [1, 2]
         };
 
         function renderPartSelection() {
@@ -1498,6 +1504,7 @@
             let parts = [], key = '';
             if (currentView.startsWith('hw')) { parts = hwPartNames; key = 'hw'; }
             else if (currentView === 'textbook') { parts = tbPartNames; key = 'textbook'; }
+            else if (currentView === 'test') { parts = testPartNames; key = 'test'; }
             else { container.innerHTML = '<p class="text-[10px] text-gray-400 py-2">이 탭은 파트 선택이 없습니다.</p>'; return; }
             
             container.innerHTML = parts.map((name, i) => {
@@ -1518,9 +1525,9 @@
         }
 
         function toggleAllParts(checked) {
-            let key = currentView.startsWith('hw') ? 'hw' : (currentView === 'textbook' ? 'textbook' : '');
+            let key = currentView.startsWith('hw') ? 'hw' : (currentView === 'textbook' ? 'textbook' : (currentView === 'test' ? 'test' : ''));
             if (!key) return;
-            selectedParts[key] = checked ? (key === 'hw' ? [1,2,3,4,5,6,7] : [1,2,3]) : [];
+            selectedParts[key] = checked ? (key === 'hw' ? [1,2,3,4,5,6,7] : (key === 'test' ? [1,2] : [1,2,3])) : [];
             renderPartSelection();
             const activeBtn = document.querySelector('.chapter-btn.active');
             if (activeBtn) renderChapter(parseInt(activeBtn.id.replace('btn-', '')));
@@ -1549,9 +1556,10 @@
                 case 'textbook': viewStr = "교재"; break;
                 case 'vocalist': viewStr = "단어문장"; break;
                 case 'hw': viewStr = "숙제"; break;
+                case 'test': viewStr = "시험"; break;
             }
 
-            if (isAnswerMode && currentView.startsWith('hw')) {
+            if (isAnswerMode && (currentView.startsWith('hw') || currentView === 'test')) {
                 viewStr += "_답지";
             }
 
@@ -1596,7 +1604,7 @@
             isAnswerMode = false;
             renderPartSelection();
 
-            const tabs = ['textbook', 'vocalist', 'hw'];
+            const tabs = ['textbook', 'vocalist', 'hw', 'test'];
             tabs.forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 if (t === view) {
@@ -1609,7 +1617,7 @@
             });
 
             const answerBtn = document.getElementById('tab-answer');
-            if (view.startsWith('hw')) {
+            if (view.startsWith('hw') || view === 'test') {
                 answerBtn.classList.remove('hidden');
                 answerBtn.classList.remove('active', 'text-red-600');
                 answerBtn.classList.add('text-red-500');
@@ -1694,6 +1702,7 @@
             if (isVocalist) { typeTag = 'VOCABULARY'; tagColor = 'text-indigo-800'; }
             else if (isTextbook) { typeTag = 'TEXTBOOK'; tagColor = 'text-blue-800'; }
             else if (isHomework) { typeTag = 'HOMEWORK'; tagColor = 'text-green-800'; }
+            else if (view === 'test') { typeTag = 'TEST'; tagColor = 'text-red-800'; }
 
             const logoHtml = currentLogoUrl ? `<img src="${currentLogoUrl}" alt="로고" class="max-h-8 max-w-[120px] object-contain mix-blend-multiply mr-4">` : '';
             const headerHtml = `
@@ -2038,6 +2047,51 @@
                         </div>
                     </div>`;
                 }
+            } else if (view === 'test') {
+                let testWordKoEnHtml = ''; 
+                let testSenKoEnHtml = '';
+                
+                for (let i = 0; i < sessionWords.length; i++) {
+                    let ansEn = answerMode ? `<span class="text-red-600 font-bold text-[10.5pt] en-font w-full break-words leading-tight">${sessionWords[i].en}</span>` : '';
+                    let ansSenEn = answerMode ? `<span class="text-red-600 font-bold text-[10pt] en-font w-full break-words leading-tight">${sessionWords[i].senEn}</span>` : '';
+                    
+                    // Part 1. Word Test (Kor -> Eng)
+                    testWordKoEnHtml += `
+                        <div class="avoid-break mt-0.5 mb-1 homework-item flex flex-col w-[48%] mb-2">
+                            <div class="font-bold text-gray-900 text-[10.5pt] ko-font mb-0"><span class="text-green-700 mr-2">${i + 1}.</span>${sessionWords[i].ko}</div>
+                            <div class="flex-1 writing-line w-full min-h-[20px]">${ansEn}</div>
+                        </div>`;
+
+                    // Part 2. Sentence Test (Kor -> Eng)
+                    testSenKoEnHtml += `
+                        <div class="avoid-break mt-0.5 mb-2 homework-item">
+                            <p class="font-bold text-[10pt] text-gray-900 mb-0.5 ko-font leading-snug"><span class="text-green-700 mr-2 en-font">Q${String(i + 1).padStart(2, '0')}.</span> ${sessionWords[i].senKo}</p>
+                            <div class="writing-line mt-0 w-full min-h-[22px]">${ansSenEn}</div>
+                        </div>`;
+                }
+
+                if (selectedParts.test.includes(1)) {
+                    pageHtml += `
+                        <div class="a4-page print-page-break">
+                            ${headerHtml}
+                            <div class="section-header">
+                                <span class="section-number en-font">01</span>
+                                <span class="section-title-text ko-font">Part 1. [Session ${session}] 단어 시험 (한-영)</span>
+                            </div>
+                            <div class="px-2 pb-0.5 flex flex-wrap justify-between">${testWordKoEnHtml}</div>
+                        </div>`;
+                }
+                if (selectedParts.test.includes(2)) {
+                    pageHtml += `
+                        <div class="a4-page print-page-break">
+                            ${headerHtml}
+                            <div class="section-header">
+                                <span class="section-number en-font">02</span>
+                                <span class="section-title-text ko-font">Part 2. [Session ${session}] 문장 시험 (한-영)</span>
+                            </div>
+                            <div class="px-2 pb-0.5 homework-list-wrapper">${testSenKoEnHtml}</div>
+                        </div>`;
+                }
             }
             return pageHtml;
         }
@@ -2076,6 +2130,7 @@
                 allHtml += generatePageHtml(chId, s, 'vocalist', printAnswer);
                 allHtml += generatePageHtml(chId, s, 'textbook', printAnswer);
                 allHtml += generatePageHtml(chId, s, 'hw', printAnswer);
+                allHtml += generatePageHtml(chId, s, 'test', printAnswer);
             }
             
             const container = document.getElementById('page-container');
