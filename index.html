@@ -215,6 +215,7 @@
                 background: #ffffff !important;
                 overflow: visible !important; /* 인쇄 시 모든 페이지가 보이도록 설정 */
                 display: block !important;
+                counter-reset: pageNumber; /* 인쇄 페이지 카운터 초기화 */
             }
 
             /* 2. 불필요한 UI 완전 차단 */
@@ -254,6 +255,20 @@
                 /* 잉크 절약 무시 & 디자인 100% 보존 */
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+
+                /* 인쇄 페이지 수 증가 */
+                counter-increment: pageNumber;
+            }
+
+            /* 인쇄 페이지 번호 (오른쪽 아래) */
+            .a4-page::after {
+                content: "- " counter(pageNumber) " -";
+                position: absolute;
+                bottom: 8mm;
+                right: 12mm;
+                font-size: 11px;
+                color: #555;
+                font-family: inherit;
             }
 
             /* 4. 간격 및 폰트 극한 다이어트 (Auto-Squeeze) */
